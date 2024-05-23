@@ -26,6 +26,9 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] private string ip;
     [SerializeField] private ushort port;
 
+    private bool isPlayerTypeSet = false;
+    private bool isImpaired;
+
     private void Awake()
     {
         Singleton = this;
@@ -37,16 +40,14 @@ public class NetworkManager : MonoBehaviour
 
         Client = new Client();
         Client.ClientDisconnected += PlayerLeft;
-        Connect();
-        
-        Message message = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.SpawnPlayer);
-        message.AddVector3(new Vector3(0, 0, 0));
-        Singleton.Client.Send(message);
     }
 
     private void FixedUpdate()
     {
-        Client.Tick();
+        if (isPlayerTypeSet)
+        {
+            Client.Tick();
+        }
     }
 
     private void OnApplicationQuit()
@@ -57,6 +58,19 @@ public class NetworkManager : MonoBehaviour
     public void Connect()
     {
         Client.Connect($"{ip}:{port}");
+    }
+
+    public void SetPlayerType(bool isImpaired)
+    {
+        this.isImpaired = isImpaired;
+        isPlayerTypeSet = true;
+
+        Connect();
+
+        Message message = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.SpawnPlayer);
+        message.AddVector3(Vector3.zero);
+        message.AddBool(isImpaired);
+        Singleton.Client.Send(message);
     }
 
     private void PlayerLeft(object sender, ClientDisconnectedEventArgs e)
