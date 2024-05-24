@@ -118,5 +118,15 @@ namespace Microsoft.MixedReality.SampleQRCodes
             }
             // eventData.Use(); // Mark the event as used, so it doesn't fall through to other handlers.
         }
+
+        public Vector3 GetQRCodePosition()
+        {
+            return transform.position;
+        }
+
+        public Quaternion GetQRCodeRotation()
+        {
+            return transform.rotation;
+        }
     }
 }

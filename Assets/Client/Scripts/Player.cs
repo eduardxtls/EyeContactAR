@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
     public Vector3 Position { get; private set; }
     public bool isLocal { get; private set; }
     public bool isImpaired { get; private set; }
+    private bool sentInterest;
 
     private bool isObserved;
     private TimeTracker timeTracker;
@@ -17,11 +18,8 @@ public class Player : MonoBehaviour
     void Start()
     {
         this.isObserved = false;
-        
-        if (isLocal && !isImpaired)
-        {
-            timeTracker = gameObject.AddComponent<TimeTracker>();
-        }
+        this.sentInterest = false;
+        this.timeTracker = new TimeTracker();
     }
 
     void Update()
@@ -30,15 +28,12 @@ public class Player : MonoBehaviour
         {
             Position = Camera.main.transform.position;
             SendPosition(Position, Camera.main.transform.forward);
-            Debug.Log("Position: " + Position);
-            Debug.Log("Forward Vector: " + Camera.main.transform.forward);
+            //Debug.Log("Position: " + Position);
+            //Debug.Log("Forward Vector: " + Camera.main.transform.forward);
 
-            if (!isImpaired)
+            if (!isImpaired && !sentInterest && timeTracker.timeObserved >= timeTracker.thresholdTime)
             {
-                if (timeTracker.timeObserved >= timeTracker.thresholdTime)
-                {
-                    SendInterest();
-                }
+                SendInterest();
             }
             else if (isObserved)
             {
@@ -59,8 +54,16 @@ public class Player : MonoBehaviour
         }
         else
         {
-            player = Instantiate(GameLogic.Singleton.PlayerPrefab, position, Quaternion.identity).GetComponent<Player>();
-            player.isLocal = false;
+            if (!isImpaired)
+            {
+                player = Instantiate(GameLogic.Singleton.LocalPlayerPrefab, position, Quaternion.identity).GetComponent<Player>();
+                player.isLocal = false;
+            }
+            else
+            {
+                player = Instantiate(GameLogic.Singleton.PlayerPrefab, position, Quaternion.identity).GetComponent<Player>();
+                player.isLocal = false;
+            }
         }
 
         // Set player attributes and add them to list
@@ -76,6 +79,7 @@ public class Player : MonoBehaviour
 
     private void SendInterest()
     {
+        sentInterest = true;
         Message message = Message.Create((MessageSendMode)0, ClientToServerId.InterestPlayer);
         message.AddUShort(id);
         message.AddBool(true);
@@ -101,7 +105,7 @@ public class Player : MonoBehaviour
 
         if (list.TryGetValue(id, out Player player))
         {
-            player.Position = position;
+            player.transform.position = position;
             player.transform.forward = message.GetVector3();
         }
     }
@@ -127,5 +131,7 @@ public class Player : MonoBehaviour
         {
             player.isObserved = interest;
         }
+
+        Debug.Log("Received interest message from player " + id);
     }
 }
