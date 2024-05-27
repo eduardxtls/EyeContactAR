@@ -117,8 +117,11 @@ public class Player : MonoBehaviour
         Vector3 position = message.GetVector3();
         bool isImpaired = message.GetBool();
 
-        Spawn(id, position, isImpaired);
-        Debug.Log("Spawned player successfully!"); 
+        if (!list.ContainsKey(id))
+        {
+            Spawn(id, position, isImpaired);
+            Debug.Log("Spawned player successfully!");
+        }
     }
 
     [MessageHandler((ushort)ServerToClientId.InterestPlayer)]
