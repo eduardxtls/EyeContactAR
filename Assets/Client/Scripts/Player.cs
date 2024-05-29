@@ -12,14 +12,31 @@ public class Player : MonoBehaviour
     public bool isImpaired { get; private set; }
     private bool sentInterest;
 
+    // Time tracking
+    public float thresholdTime = 5f; // Time threshold in seconds
+    public float timeObserved = 0f;
+    private float startTime;
+
     private bool isObserved;
-    private TimeTracker timeTracker;
+
+    public void StartCounting()
+    {
+        Debug.Log("Start counting...");
+        startTime = Time.time;
+    }
+
+    public void StopCounting()
+    {
+        float currentTime = Time.time;
+        timeObserved += (currentTime - startTime);
+        Debug.Log("Time spent looking at target: " + timeObserved);
+    }
+    // -------------------------------------------------------------------------------
 
     void Start()
     {
         this.isObserved = false;
         this.sentInterest = false;
-        this.timeTracker = new TimeTracker();
     }
 
     void Update()
@@ -31,13 +48,22 @@ public class Player : MonoBehaviour
             //Debug.Log("Position: " + Position);
             //Debug.Log("Forward Vector: " + Camera.main.transform.forward);
 
-            if (!isImpaired && !sentInterest && timeTracker.timeObserved >= timeTracker.thresholdTime)
+            // Debug.Log("Time observed: " + timeObserved);
+
+            if (!isImpaired && !sentInterest && timeObserved >= thresholdTime)
             {
                 SendInterest();
             }
             else if (isObserved)
             {
                 // Show observer / visual and audio cues
+            }
+        }
+        else
+        {
+            if (isImpaired && !sentInterest && timeObserved >= thresholdTime)
+            {
+                SendInterest();
             }
         }
     }

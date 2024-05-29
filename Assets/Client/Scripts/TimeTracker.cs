@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class TimeTracker : MonoBehaviour
 {
-    public float thresholdTime; // Time threshold in seconds
+    public float thresholdTime = 5f; // Time threshold in seconds
 
     public float timeObserved = 0f;
     private float startTime;
