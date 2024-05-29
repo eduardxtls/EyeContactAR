@@ -11,6 +11,8 @@ namespace Microsoft.MixedReality.SampleQRCodes
         public GameObject qrCodePrefab;
 
         private SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
+        public SortedDictionary<System.Guid, GameObject> qrCodesObjectsList_copy;
+
         private bool clearExisting = false;
 
         struct ActionData
@@ -48,6 +50,23 @@ namespace Microsoft.MixedReality.SampleQRCodes
                 throw new System.Exception("Prefab not assigned");
             }
         }
+
+        public void startVisual()
+        {
+            QRCodesManager.Instance.QRCodesTrackingStateChanged += Instance_QRCodesTrackingStateChanged;
+            QRCodesManager.Instance.QRCodeAdded += Instance_QRCodeAdded;
+            QRCodesManager.Instance.QRCodeUpdated += Instance_QRCodeUpdated;
+            QRCodesManager.Instance.QRCodeRemoved += Instance_QRCodeRemoved;
+        }
+        
+        public void stopVisual()
+        {
+            QRCodesManager.Instance.QRCodesTrackingStateChanged -= Instance_QRCodesTrackingStateChanged;
+            QRCodesManager.Instance.QRCodeAdded -= Instance_QRCodeAdded;
+            QRCodesManager.Instance.QRCodeUpdated -= Instance_QRCodeUpdated;
+            QRCodesManager.Instance.QRCodeRemoved -= Instance_QRCodeRemoved;
+        }
+
         private void Instance_QRCodesTrackingStateChanged(object sender, bool status)
         {
             if (!status)
@@ -99,6 +118,7 @@ namespace Microsoft.MixedReality.SampleQRCodes
                         qrCodeObject.GetComponent<SpatialGraphNodeTracker>().Id = action.qrCode.SpatialGraphNodeId;
                         qrCodeObject.GetComponent<QRCode>().qrCode = action.qrCode;
                         qrCodesObjectsList.Add(action.qrCode.Id, qrCodeObject);
+                        // 
                     }
                     else if (action.type == ActionData.Type.Updated)
                     {
@@ -108,6 +128,7 @@ namespace Microsoft.MixedReality.SampleQRCodes
                             qrCodeObject.GetComponent<SpatialGraphNodeTracker>().Id = action.qrCode.SpatialGraphNodeId;
                             qrCodeObject.GetComponent<QRCode>().qrCode = action.qrCode;
                             qrCodesObjectsList.Add(action.qrCode.Id, qrCodeObject);
+                            //
                         }
                     }
                     else if (action.type == ActionData.Type.Removed)
@@ -116,6 +137,7 @@ namespace Microsoft.MixedReality.SampleQRCodes
                         {
                             Destroy(qrCodesObjectsList[action.qrCode.Id]);
                             qrCodesObjectsList.Remove(action.qrCode.Id);
+                            //
                         }
                     }
                 }
