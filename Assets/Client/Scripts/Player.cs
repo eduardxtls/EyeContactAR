@@ -12,31 +12,15 @@ public class Player : MonoBehaviour
     public bool isImpaired { get; private set; }
     private bool sentInterest;
 
-    // Time tracking
-    public float thresholdTime = 5f; // Time threshold in seconds
-    public float timeObserved = 0f;
-    private float startTime;
+    private TimeTracker timeTracker;
 
     private bool isObserved;
-
-    public void StartCounting()
-    {
-        Debug.Log("Start counting...");
-        startTime = Time.time;
-    }
-
-    public void StopCounting()
-    {
-        float currentTime = Time.time;
-        timeObserved += (currentTime - startTime);
-        Debug.Log("Time spent looking at target: " + timeObserved);
-    }
-    // -------------------------------------------------------------------------------
 
     void Start()
     {
         this.isObserved = false;
         this.sentInterest = false;
+        this.timeTracker = GetComponent<TimeTracker>();
     }
 
     void Update()
@@ -48,20 +32,14 @@ public class Player : MonoBehaviour
             //Debug.Log("Position: " + Position);
             //Debug.Log("Forward Vector: " + Camera.main.transform.forward);
 
-            // Debug.Log("Time observed: " + timeObserved);
-
-            if (!isImpaired && !sentInterest && timeObserved >= thresholdTime)
-            {
-                SendInterest();
-            }
-            else if (isObserved)
+            if (isImpaired && isObserved)
             {
                 // Show observer / visual and audio cues
             }
         }
         else
         {
-            if (isImpaired && !sentInterest && timeObserved >= thresholdTime)
+            if (isImpaired && !sentInterest && timeTracker.timeObserved >= timeTracker.thresholdTime)
             {
                 SendInterest();
             }
@@ -107,7 +85,8 @@ public class Player : MonoBehaviour
     {
         sentInterest = true;
         Message message = Message.Create((MessageSendMode)0, ClientToServerId.InterestPlayer);
-        message.AddUShort(id);
+        ushort observerID = (ushort) (id % 2 + 1);
+        message.AddUShort(observerID);
         message.AddBool(true);
         NetworkManager.Singleton.Client.Send(message);
     }

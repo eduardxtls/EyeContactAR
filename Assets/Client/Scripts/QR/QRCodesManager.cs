@@ -202,6 +202,7 @@ namespace Microsoft.MixedReality.SampleQRCodes
             {
                 handlers(this, QRCodeEventArgs.Create(args.Code));
             }
+
         }
 
         private void QRCodeWatcher_EnumerationCompleted(object sender, object e)
