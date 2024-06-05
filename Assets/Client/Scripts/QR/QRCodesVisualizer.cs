@@ -164,7 +164,7 @@ namespace Microsoft.MixedReality.SampleQRCodes
                 foreach (KeyValuePair<System.Guid, GameObject> keyValuePair in qrCodesObjectsList_copy)
                 {
                     Debug.Log("QR Code " + keyValuePair.Value.GetComponent<QRCode>().qrCode.Data + " detected.");
-                    if (keyValuePair.Value.GetComponent<QRCode>().qrCode.Data == "Start_QR_Code" && !anchorPlaced)
+                    if (keyValuePair.Value.GetComponent<QRCode>().qrCode.Data == "00003" && !anchorPlaced)
                     {
                         QR = keyValuePair;
 
