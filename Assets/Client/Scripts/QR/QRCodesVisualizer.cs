@@ -1,6 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using RiptideNetworking;
+using RiptideNetworking.Utils;
+using RiptideNetworking.Transports;
+using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,8 +15,15 @@ namespace Microsoft.MixedReality.SampleQRCodes
     {
         public GameObject qrCodePrefab;
 
+        // Custom
+        public GameObject anchorPrefab;
+        Vector3 anchorPosition;
+        bool anchorPlaced = false;
+        KeyValuePair<System.Guid, GameObject> QR = new KeyValuePair<Guid, GameObject>();
+        // End custom
+
         private SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
-        public SortedDictionary<System.Guid, GameObject> qrCodesObjectsList_copy;
+        public SortedDictionary<System.Guid, GameObject> qrCodesObjectsList_copy; // Copy to avoid overwriting
 
         private bool clearExisting = false;
 
@@ -40,6 +52,7 @@ namespace Microsoft.MixedReality.SampleQRCodes
         {
             Debug.Log("QRCodesVisualizer start");
             qrCodesObjectsList = new SortedDictionary<System.Guid, GameObject>();
+            qrCodesObjectsList_copy = new SortedDictionary<System.Guid, GameObject>();
 
             QRCodesManager.Instance.QRCodesTrackingStateChanged += Instance_QRCodesTrackingStateChanged;
             QRCodesManager.Instance.QRCodeAdded += Instance_QRCodeAdded;
@@ -118,7 +131,7 @@ namespace Microsoft.MixedReality.SampleQRCodes
                         qrCodeObject.GetComponent<SpatialGraphNodeTracker>().Id = action.qrCode.SpatialGraphNodeId;
                         qrCodeObject.GetComponent<QRCode>().qrCode = action.qrCode;
                         qrCodesObjectsList.Add(action.qrCode.Id, qrCodeObject);
-                        // 
+                        qrCodesObjectsList_copy.Add(action.qrCode.Id, qrCodeObject);
                     }
                     else if (action.type == ActionData.Type.Updated)
                     {
@@ -128,7 +141,7 @@ namespace Microsoft.MixedReality.SampleQRCodes
                             qrCodeObject.GetComponent<SpatialGraphNodeTracker>().Id = action.qrCode.SpatialGraphNodeId;
                             qrCodeObject.GetComponent<QRCode>().qrCode = action.qrCode;
                             qrCodesObjectsList.Add(action.qrCode.Id, qrCodeObject);
-                            //
+                            qrCodesObjectsList_copy.Add(action.qrCode.Id, qrCodeObject);
                         }
                     }
                     else if (action.type == ActionData.Type.Removed)
@@ -137,11 +150,44 @@ namespace Microsoft.MixedReality.SampleQRCodes
                         {
                             Destroy(qrCodesObjectsList[action.qrCode.Id]);
                             qrCodesObjectsList.Remove(action.qrCode.Id);
-                            //
+                            qrCodesObjectsList_copy.Remove(action.qrCode.Id);
                         }
                     }
                 }
             }
+
+            // START CUSTOM --------------------------------
+
+            stopVisual();
+            lock (qrCodesObjectsList_copy)
+            {
+                foreach (KeyValuePair<System.Guid, GameObject> keyValuePair in qrCodesObjectsList_copy)
+                {
+                    Debug.Log("QR Code " + keyValuePair.Value.GetComponent<QRCode>().qrCode.Data + " detected.");
+                    if (keyValuePair.Value.GetComponent<QRCode>().qrCode.Data == "Start_QR_Code" && !anchorPlaced)
+                    {
+                        QR = keyValuePair;
+
+                        TransformCam.Singleton.anchor = anchorPrefab; // Set TransformCam anchor to this anchor
+                        // Instantiate the anchor ???
+
+                        // Place the anchor at this QR code's position and rotation
+                        anchorPrefab.transform.position = QR.Value.transform.position;
+                        anchorPrefab.transform.rotation = QR.Value.transform.rotation;
+
+                        // Prevents multiple placements of anchor
+                        anchorPlaced = true;
+                        TransformCam.Singleton.transformCam();
+
+                        break;
+                    }
+                }
+            }
+
+            startVisual(); // Start visualization again
+
+            // END CUSTOM --------------------------------
+
             if (clearExisting)
             {
                 clearExisting = false;
@@ -150,6 +196,12 @@ namespace Microsoft.MixedReality.SampleQRCodes
                     Destroy(obj.Value);
                 }
                 qrCodesObjectsList.Clear();
+
+                foreach (var obj in qrCodesObjectsList_copy)
+                {
+                    Destroy(obj.Value);
+                }
+                qrCodesObjectsList_copy.Clear();
 
             }
         }

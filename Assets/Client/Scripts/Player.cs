@@ -27,10 +27,14 @@ public class Player : MonoBehaviour
     {
         if (isLocal)
         {
-            Position = Camera.main.transform.position;
-            SendPosition(Position, Camera.main.transform.forward);
-            //Debug.Log("Position: " + Position);
-            //Debug.Log("Forward Vector: " + Camera.main.transform.forward);
+            if (TransformCam.Singleton.transformed)
+            {
+                Position = TransformCam.Singleton.RelativeRotation * Camera.main.transform.position + TransformCam.Singleton.RelativePos;
+                SendPosition(Position, new Vector3(0, 0, 0));
+
+                //Debug.Log("Position: " + Position);
+                //Debug.Log("Forward Vector: " + Camera.main.transform.forward);
+            }
 
             if (isImpaired && isObserved)
             {
@@ -107,11 +111,12 @@ public class Player : MonoBehaviour
     {
         ushort id = message.GetUShort();
         Vector3 position = message.GetVector3();
+        Vector3 forward = message.GetVector3();
 
         if (list.TryGetValue(id, out Player player))
         {
-            player.transform.position = position;
-            player.transform.forward = message.GetVector3();
+            player.transform.position = TransformCam.Singleton.RelativeRotation * position + TransformCam.Singleton.RelativePos;
+            // player.transform.forward = forward;
         }
     }
 
@@ -140,6 +145,6 @@ public class Player : MonoBehaviour
             player.isObserved = interest;
         }
 
-        Debug.Log("Received interest message from player " + id);
+        Debug.Log("Received interest message from observer " + id);
     }
 }
