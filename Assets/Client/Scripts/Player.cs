@@ -32,8 +32,8 @@ public class Player : MonoBehaviour
                 Position = TransformCam.Singleton.RelativeRotation * Camera.main.transform.position + TransformCam.Singleton.RelativePos;
                 SendPosition(Position, new Vector3(0, 0, 0));
 
-                //Debug.Log("Position: " + Position);
-                //Debug.Log("Forward Vector: " + Camera.main.transform.forward);
+                Debug.Log("Position: " + Position);
+     
             }
 
             if (isImpaired && isObserved)
@@ -116,6 +116,7 @@ public class Player : MonoBehaviour
         if (list.TryGetValue(id, out Player player))
         {
             player.transform.position = TransformCam.Singleton.RelativeRotation * position + TransformCam.Singleton.RelativePos;
+            Debug.Log("New position of player: " + player.transform.position);
             // player.transform.forward = forward;
         }
     }

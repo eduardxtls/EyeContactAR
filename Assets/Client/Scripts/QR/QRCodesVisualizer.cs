@@ -164,21 +164,26 @@ namespace Microsoft.MixedReality.SampleQRCodes
                 foreach (KeyValuePair<System.Guid, GameObject> keyValuePair in qrCodesObjectsList_copy)
                 {
                     Debug.Log("QR Code " + keyValuePair.Value.GetComponent<QRCode>().qrCode.Data + " detected.");
-                    if (keyValuePair.Value.GetComponent<QRCode>().qrCode.Data == "00003" && !anchorPlaced)
+                    if (keyValuePair.Value.GetComponent<QRCode>().qrCode.Data == "ECA" && !anchorPlaced)
                     {
+                        
+                        Debug.Log("Anchor QR Code found");
                         QR = keyValuePair;
 
-                        TransformCam.Singleton.anchor = anchorPrefab; // Set TransformCam anchor to this anchor
+                        //anchorPrefab = TransformCam.Singleton.anchor;
+                        //TransformCam.Singleton.anchor = anchorPrefab; // Set TransformCam anchor to this anchor
                         // Instantiate the anchor ???
 
                         // Place the anchor at this QR code's position and rotation
+                        
+                       
                         anchorPrefab.transform.position = QR.Value.transform.position;
                         anchorPrefab.transform.rotation = QR.Value.transform.rotation;
 
                         // Prevents multiple placements of anchor
-                        anchorPlaced = true;
+                        //anchorPlaced = true;
                         TransformCam.Singleton.transformCam();
-
+                        Debug.Log("Transformed"+ TransformCam.Singleton.RelativePos);
                         break;
                     }
                 }
