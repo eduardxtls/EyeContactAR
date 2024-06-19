@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     public bool isLocal { get; private set; }
     public bool isImpaired { get; private set; }
     private bool sentInterest;
+    private AudioSource audioSource;
 
     private TimeTracker timeTracker;
 
@@ -36,10 +37,21 @@ public class Player : MonoBehaviour
      
             }
 
+            /*
+            // Audio cues for visually impaired (local) player
             if (isImpaired && isObserved)
             {
-                // Show observer / visual and audio cues
+                // Fetch other player's ID
+                ushort observerID = (ushort)(id % 2 + 1);
+
+                // Set other player as observer
+                if (list.TryGetValue(observerID, out Player player) && !player.isImpaired)
+                {
+                    // Play audio at other player's position
+                    player.GetComponent<AudioSource>().Play();
+                }
             }
+            */
         }
         else
         {
@@ -59,6 +71,14 @@ public class Player : MonoBehaviour
         {
             player = Instantiate(GameLogic.Singleton.LocalPlayerPrefab, position, Quaternion.identity).GetComponent<Player>();
             player.isLocal = true;
+
+            // Mute the AudioSource for the local player
+            AudioSource audioSource = player.GetComponent<AudioSource>();
+            if (audioSource != null)
+            {
+                audioSource.mute = true;
+                Debug.Log("Disabled Audio Source component for local player.");
+            }
         }
         else
         {
@@ -87,12 +107,12 @@ public class Player : MonoBehaviour
 
     private void SendInterest()
     {
-        sentInterest = true;
         Message message = Message.Create((MessageSendMode)0, ClientToServerId.InterestPlayer);
         ushort observerID = (ushort) (id % 2 + 1);
         message.AddUShort(observerID);
         message.AddBool(true);
         NetworkManager.Singleton.Client.Send(message);
+        sentInterest = true;
     }
 
     private void SendPosition(Vector3 position, Vector3 forward)
@@ -116,7 +136,6 @@ public class Player : MonoBehaviour
         if (list.TryGetValue(id, out Player player))
         {
             player.transform.position = TransformCam.Singleton.RelativeRotation * position + TransformCam.Singleton.RelativePos;
-            Debug.Log("New position of player: " + player.transform.position);
             // player.transform.forward = forward;
         }
     }
@@ -138,14 +157,18 @@ public class Player : MonoBehaviour
     [MessageHandler((ushort)ServerToClientId.InterestPlayer)]
     private static void InterestPlayer(Message message)
     {
-        ushort id = message.GetUShort();
+        ushort observerID = message.GetUShort();
         bool interest = message.GetBool();
 
-        if (list.TryGetValue(id, out Player player) && player.isImpaired)
-        {
-            player.isObserved = interest;
-        }
+        Debug.Log("Received interest message from observer " + observerID);
 
-        Debug.Log("Received interest message from observer " + id);
+        // Set other player as observer
+        if (list.TryGetValue(observerID, out Player observer) && !observer.isImpaired)
+        {
+            // Play audio at other player's position
+            observer.GetComponent<AudioSource>().mute = false;
+
+            Debug.Log("Enables other player's sound.");
+        }
     }
 }
