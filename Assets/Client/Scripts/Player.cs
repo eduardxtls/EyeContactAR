@@ -136,6 +136,7 @@ public class Player : MonoBehaviour
         if (list.TryGetValue(id, out Player player))
         {
             player.transform.position = TransformCam.Singleton.RelativeRotation * position + TransformCam.Singleton.RelativePos;
+            // Debug.Log("New player position: " + position);
             // player.transform.forward = forward;
         }
     }
