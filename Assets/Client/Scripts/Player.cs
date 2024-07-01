@@ -31,19 +31,19 @@ public class Player : MonoBehaviour
     {
         if (isLocal)
         {
-            /*
+            
             if (TransformCam.Singleton.transformed)
             {
                 Position = TransformCam.Singleton.RelativeRotation * Camera.main.transform.position + TransformCam.Singleton.RelativePos;
                 SendPosition(Position, new Vector3(0, 0, 0));
 
-                Debug.Log("Position: " + Position);
+                // Debug.Log("Position: " + Position);
             }
-            */
 
-            
+            /*
             Position = Camera.main.transform.position;
             SendPosition(Position, new Vector3(0, 0, 0));
+            */
 
             if (isImpaired)
             {
@@ -144,8 +144,8 @@ public class Player : MonoBehaviour
 
         if (list.TryGetValue(playerID, out Player player))
         {
-            // player.transform.position = TransformCam.Singleton.RelativeRotation * position + TransformCam.Singleton.RelativePos;
-            player.transform.position = position;
+            player.transform.position = TransformCam.Singleton.RelativeRotation * position + TransformCam.Singleton.RelativePos;
+            // player.transform.position = position;
         }
     }
 
@@ -176,7 +176,7 @@ public class Player : MonoBehaviour
             if (interest)
             {
                 Debug.Log("Received interest message from player " + observerID);
-                NotificationManager.Instance.ShowScreenOverlay(new Color(1, 0, 0.8f, 0.5f));
+                NotificationManager.Instance.ShowScreenOverlay(new Color(1, 0, 0.8f, 1.0f));
             }
         }
         else
@@ -186,7 +186,7 @@ public class Player : MonoBehaviour
             {
                 // Show screen overlay with color
                 Debug.Log("Showing animation...");
-                NotificationManager.Instance.ShowScreenOverlay(new Color(1, 0, 0.8f, 0.5f));
+                NotificationManager.Instance.ShowScreenOverlay(new Color(1, 0, 0.8f, 1.0f));
             }
 
             foreach (var player in list.Values)
