@@ -1,4 +1,4 @@
-# AR Eye Contact Recognition for Individuals with Visual Impairment
+# AR Interest Recognition for Individuals with Visual Impairment
 
 ## Project Overview
 
@@ -39,7 +39,7 @@ The included cues are:
 
 ## Use Case
 
-- **Social Interactions**
+- **Social Interactions - in the current state mainly for romantic interest**
 
 
 ## Future Enhancements
