@@ -10,13 +10,12 @@ public class Player : MonoBehaviour
     public Vector3 Position { get; private set; }
     public bool isLocal { get; private set; }
     public bool isImpaired { get; private set; }
+    private bool isObserved;
     private bool sentInterest;
     private AudioSource audioSource;
 
     private TimeTracker timeTracker;
     private LineRenderer lineRenderer;
-
-    private bool isObserved;
 
     void Start()
     {
@@ -36,14 +35,7 @@ public class Player : MonoBehaviour
             {
                 Position = TransformCam.Singleton.RelativeRotation * Camera.main.transform.position + TransformCam.Singleton.RelativePos;
                 SendPosition(Position, new Vector3(0, 0, 0));
-
-                // Debug.Log("Position: " + Position);
             }
-
-            /*
-            Position = Camera.main.transform.position;
-            SendPosition(Position, new Vector3(0, 0, 0));
-            */
 
             if (isImpaired)
             {

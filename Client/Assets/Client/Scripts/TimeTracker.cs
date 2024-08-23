@@ -17,7 +17,6 @@ public class TimeTracker : MonoBehaviour
     {
         float currentTime = Time.time;
         timeObserved += (currentTime - startTime);
-        Debug.Log("Time spent looking at target: " + timeObserved);
+        Debug.Log("Total time spent looking at target: " + timeObserved);
     }
-
 }

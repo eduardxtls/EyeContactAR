@@ -87,7 +87,7 @@ public class Player : MonoBehaviour
                 player.transform.forward = forwardDirection.normalized;
             }
 
-            // Broadcast the move to all other clients
+            // Broadcast the movement to all other clients
             Message moveMessage = Message.Create(MessageSendMode.unreliable, (ushort)ServerToClientId.MovePlayer);
             moveMessage.AddUShort(playerId);
             moveMessage.AddVector3(newPosition);
@@ -115,7 +115,7 @@ public class Player : MonoBehaviour
 
         Debug.Log("Received interest message from player " + fromId + " for other player.");
 
-        // If normal sighted player
+        // If sighted player
         if (!player.isImpaired)
         {
             ushort otherPlayerID = (ushort)(fromId % 2 + 1);
@@ -128,6 +128,7 @@ public class Player : MonoBehaviour
                 interestMessage.AddBool(interest);
                 interestMessage.AddBool(soundActive);
                 interestMessage.AddBool(visualActive);
+
                 // Notify other player
                 NetworkManager.Singleton.Server.Send(interestMessage, otherPlayerID);
             }
